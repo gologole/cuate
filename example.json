@@ -1,0 +1,18 @@
+{
+  "ig-token": "",
+  "ig-text": "",
+  "ig-photo": "",
+
+  "vk-api-accessUserToken": "",
+  "accessTokenGroup": "",
+  "groupID": "",
+  "vk-text": "",
+  "vk-photo-path": "",
+
+
+  "tg-bot-token": "",
+  "tg-channel-id": "",
+  "tg-text": "",
+  "tg-photo-path": ""
+
+}
