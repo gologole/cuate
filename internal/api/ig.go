@@ -1,107 +1,35 @@
 package api
 
 import (
-	"bytes"
-	log2 "cmd/main.go/pkg/mylogger"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
+	"github.com/Davincible/goinsta"
 	"os"
 )
 
-func PostInInstagram(token, text, photoPath string) error {
-	file, err := os.Open(photoPath)
+func PostInInstagram(username, password, photoPath, caption string) error {
+	insta := goinsta.New(username, password)
+
+	err := insta.Login()
 	if err != nil {
-		return fmt.Errorf("error opening photo: %w", err)
+		return fmt.Errorf("не удалось войти в Instagram: %w", err)
 	}
-	defer file.Close()
+	defer insta.Logout()
 
-	photoUploadID, err := uploadPhotoToInstagram(token, photoPath)
+	f, err := os.Open(photoPath)
 	if err != nil {
-		return fmt.Errorf("error uploading photo to Instagram: %w", err)
+		fmt.Println("фото не открывается ")
 	}
-
-	err = publishPhotoOnInstagram(token, photoUploadID, text)
+	fmt.Println("фото открыто")
+	media, err := insta.Upload(
+		&goinsta.UploadOptions{
+			File:    f,
+			Caption: caption,
+		},
+	)
 	if err != nil {
-		return fmt.Errorf("error publishing photo on Instagram: %w", err)
+		return fmt.Errorf("не удалось загрузить фото: %w", err)
 	}
 
-	log2.Info("Пост успешно опубликован в Instagram!")
-	return nil
-}
-
-func uploadPhotoToInstagram(token, photoPath string) (string, error) {
-	url := fmt.Sprintf("https://graph.instagram.com/v13.0/me/media?access_token=%s", token)
-
-	file, err := os.Open(photoPath)
-	if err != nil {
-		return "", fmt.Errorf("error opening photo: %w", err)
-	}
-	defer file.Close()
-
-	requestBody, err := json.Marshal(map[string]string{
-		"image_url": photoPath,
-	})
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		return "", fmt.Errorf("error sending upload request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("error reading response: %w", err)
-	}
-
-	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return "", fmt.Errorf("error parsing response: %w", err)
-	}
-
-	if id, ok := result["id"].(string); ok {
-		return id, nil
-	}
-
-	return "", fmt.Errorf("media ID not found in response")
-}
-
-func publishPhotoOnInstagram(token, mediaID, text string) error {
-	url := fmt.Sprintf("https://graph.instagram.com/v13.0/me/media_publish?access_token=%s", token)
-
-	params := map[string]string{
-		"creation_id": mediaID,
-		"caption":     text,
-	}
-
-	requestBody, err := json.Marshal(params)
-	if err != nil {
-		return fmt.Errorf("error marshalling request body: %w", err)
-	}
-
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		return fmt.Errorf("error sending publish request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return fmt.Errorf("error reading response: %w", err)
-	}
-
-	var result map[string]interface{}
-	if err := json.Unmarshal(body, &result); err != nil {
-		return fmt.Errorf("error parsing response: %w", err)
-	}
-
-	if result["id"] == nil {
-		return fmt.Errorf("error publishing post: no post ID returned")
-	}
-
+	fmt.Printf("Фото успешно загружено с ID: %s\n", media.ID)
 	return nil
 }

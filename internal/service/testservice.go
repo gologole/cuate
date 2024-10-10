@@ -28,8 +28,8 @@ func CallApis(jsonModel models.JsonModel) error {
 		}
 	}
 
-	if jsonModel.InstagramToken != "" {
-		err := api.PostInInstagram(jsonModel.InstagramToken, jsonModel.InstagramText, jsonModel.InstagramPhoto)
+	if jsonModel.InstagramLogin != "" && jsonModel.InstagramPasswd != "" {
+		err := api.PostInInstagram(jsonModel.InstagramLogin, jsonModel.InstagramPasswd, jsonModel.InstagramText, jsonModel.InstagramPhoto)
 		if err != nil {
 			log2.Errorf("Error posting to Instagram:", err)
 			return err

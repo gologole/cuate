@@ -17,11 +17,11 @@ func main() {
 	// Парсим флаги
 	flag.Parse()
 
-	cfg, err := config.LoadConfig()
-	log2.Init()
+	_, err := config.LoadConfig()
 	if err != nil {
 		log.Fatalf("Error loading configuration: %v", err)
 	}
+	log2.Init()
 
 	// Если флаг -f был передан (filePath не пусто)
 	if *filePath != "" {
@@ -29,14 +29,13 @@ func main() {
 			fmt.Println("File does not exist:", *filePath)
 			return
 		}
+
 		fmt.Println("File path provided:", *filePath)
 
 		service.StartDebug(*filePath)
-		//если запускаем в дефолтном режиме
+
 	} else {
-		fmt.Println("No file path provided, running in default mode.")
-		service.DefaultWork(cfg)
-		fmt.Printf("Connecting to PostgreSQL at %s:%s with user %s\n", cfg.DBHost, cfg.DBPort, cfg.DBUser)
+		fmt.Println("No file path provided.")
 
 	}
 }

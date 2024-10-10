@@ -1,9 +1,10 @@
 package models
 
 type JsonModel struct {
-	InstagramToken string `json:"ig-token"`
-	InstagramText  string `json:"ig-text"`
-	InstagramPhoto string `json:"ig-photo"`
+	InstagramLogin  string `json:"ig-login"`
+	InstagramPasswd string `json:"ig-password"`
+	InstagramText   string `json:"ig-text"`
+	InstagramPhoto  string `json:"ig-photo"`
 
 	VkAccessUserToken  string `json:"vk-api-accessUserToken"`
 	VkAccessTokenGroup string `json:"accessTokenGroup"`
